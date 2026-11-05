@@ -8,6 +8,7 @@ export interface IAdmin extends Document {
   role: "admin";
   resetPasswordToken?: string | undefined;
   resetPasswordExpires?: Date | undefined;
+  tokenVersion?: number;
 
   comparePassword(enteredPassword: string): Promise<boolean>;
 }
@@ -51,6 +52,12 @@ const adminSchema = new Schema<IAdmin>(
 
     resetPasswordExpires: {
       type: Date,
+      select: false,
+    },
+
+    tokenVersion: {
+      type: Number,
+      default: 0,
       select: false,
     },
   },

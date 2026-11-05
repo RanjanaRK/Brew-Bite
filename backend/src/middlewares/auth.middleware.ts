@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import env from "../configs/env.js";
 import Admin from "../models/admin.model.js";
+import { COOKIE_NAME } from "../utils/cookie.js";
 
 export const protectAdmin = async (
   req: Request,
@@ -10,7 +11,7 @@ export const protectAdmin = async (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies?.adminToken;
+    const token = req.cookies?.[COOKIE_NAME];
 
     if (!token) {
       return res.status(401).json({
@@ -31,14 +32,16 @@ export const protectAdmin = async (
     }
 
     // Check whether admin exists and is active
-    const admin = await Admin.findById(decoded.id).select("_id role");
 
-    if (!admin) {
-      res.status(401).json({
+    const admin = await Admin.findById(decoded.id).select(
+      "_id role +tokenVersion",
+    );
+
+    if (!admin || decoded.tokenVersion !== admin.tokenVersion) {
+      return res.status(401).json({
         success: false,
-        message: "Admin account not found.",
+        message: "Session expired. Please login again.",
       });
-      return;
     }
 
     // Attach admin details to Express request
@@ -49,7 +52,7 @@ export const protectAdmin = async (
 
     next();
   } catch (error) {
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
       message: "Invalid or expired authentication token.",
     });

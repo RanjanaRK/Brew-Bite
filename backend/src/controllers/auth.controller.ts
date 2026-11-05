@@ -16,7 +16,7 @@ export const login = async (req: Request, res: Response) => {
 
     const admin = await Admin.findOne({
       email: email?.trim().toLowerCase(),
-    }).select("+password");
+    }).select("+password +tokenVersion");
 
     if (!admin) {
       return res.status(401).json({
@@ -35,9 +35,13 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const token = jwt.sign(
-      { id: admin._id.toString(), role: admin.role },
+      {
+        id: admin._id.toString(),
+        role: admin.role,
+        tokenVersion: admin.tokenVersion,
+      },
       env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "1d" },
     );
 
     // res.cookie(ADMIN_COOKIE_NAME, token, adminCookieOptions);
@@ -128,7 +132,6 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     admin.resetPasswordToken = hashedToken;
     admin.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
-
     await admin.save();
 
     const resetUrl = `${env.FRONTEND_URL}/admin/reset-password/${resetToken}`;
@@ -211,6 +214,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     admin.password = password;
     admin.resetPasswordToken = undefined;
     admin.resetPasswordExpires = undefined;
+    admin.tokenVersion = (admin.tokenVersion ?? 0) + 1;
 
     await admin.save();
 
@@ -288,6 +292,7 @@ export const changePassword = async (req: Request, res: Response) => {
     }
 
     admin.password = newPassword;
+    admin.tokenVersion = (admin.tokenVersion ?? 0) + 1;
     await admin.save();
 
     return res.status(200).json({

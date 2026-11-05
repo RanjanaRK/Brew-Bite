@@ -6,7 +6,7 @@ export const COOKIE_NAME = "adminToken";
 export const adminCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "none",
+  sameSite: "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   path: "/",
 };
@@ -14,7 +14,7 @@ export const adminCookieOptions: CookieOptions = {
 export const clearAdminCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "none",
+  sameSite: "lax",
   path: "/",
 };
 

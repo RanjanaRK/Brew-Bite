@@ -1,6 +1,9 @@
 import cors from "cors";
 import express from "express";
 import connectDB from "./configs/db.js";
+import authRouter from "./routes/auth.route.js";
+import categoryRouter from "./routes/menuCategory.route.js";
+import itemRouter from "./routes/menuItem.route.js";
 
 connectDB();
 
@@ -10,6 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/admin/auth", authRouter);
+app.use("/api/admin/menu/categories", categoryRouter);
+app.use("/api/admin/menu/item", itemRouter);
 
 // Health check API
 app.get("/", (_req, res) => {

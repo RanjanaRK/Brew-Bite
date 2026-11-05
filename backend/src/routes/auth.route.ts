@@ -18,27 +18,31 @@ import {
 import validateRequest from "../middlewares/validateRequest.js";
 import { protectAdmin } from "../middlewares/auth.middleware.js";
 
-const router = Router();
+const authRouter = Router();
 
 // PUBLIC ROUTES
 
-router.post("/login", loginValidator, login);
+authRouter.post("/login", loginValidator, login);
 
-router.post("/forgot-password", forgotPasswordValidator, forgotPassword);
+authRouter.post("/forgot-password", forgotPasswordValidator, forgotPassword);
 
-router.post("/reset-password/:token", resetPasswordValidator, resetPassword);
+authRouter.post(
+  "/reset-password/:token",
+  resetPasswordValidator,
+  resetPassword,
+);
 
 // PROTECTED ROUTES
 
-router.post("/logout", protectAdmin, logout);
+authRouter.post("/logout", protectAdmin, logout);
 
-router.get("/me", protectAdmin, getMe);
+authRouter.get("/me", protectAdmin, getMe);
 
-router.patch(
+authRouter.patch(
   "/change-password",
   protectAdmin,
   changePasswordValidator,
   changePassword,
 );
 
-export default router;
+export default authRouter;
